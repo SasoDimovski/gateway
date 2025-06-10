@@ -1,0 +1,35 @@
+services:
+  traefik:
+    image: "traefik:v2.10"
+    container_name: traefik
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8088:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - traefik-net
+      
+      
+
+  whoami:
+    image: "traefik/whoami:latest"
+    container_name: whoami
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami`)"
+      - "traefik.http.routers.whoami.entrypoints=web"
+    networks:
+      - traefik-net
+      
+      
+networks:
+  traefik-net:
+    name: traefik
+    driver: bridge
